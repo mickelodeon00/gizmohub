@@ -9,7 +9,7 @@ import Logo from './Logo';
 
 const Header = () => {
   return (
-    <header className="h-32 shadow-md bg-white">
+    <header className="h-16 shadow-md bg-white">
       <div className=" h-full container mx-auto flex items-center px-4 justify-between ">
         <Link className="" to={'/'}>
           <Logo w={90} h={50} />

@@ -7,7 +7,7 @@ function App() {
   return (
     <div className="App">
       <Header />
-      <main>
+      <main className=" min-h-[calc(100vh-130px)]">
         <Outlet />
       </main>
       <Footer />
