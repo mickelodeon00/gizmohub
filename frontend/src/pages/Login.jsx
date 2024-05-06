@@ -1,28 +1,53 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-import { Link } from 'react-router-dom';
 import { FaEye } from 'react-icons/fa';
 import { FaEyeSlash } from 'react-icons/fa';
+import { AiOutlineLoading } from 'react-icons/ai';
 
+import { AppContext } from '../contexts/AppContext';
 import LoginIcon from '../assets/signin.gif';
+import { postRequest } from '../utils/apiCall';
+import { getError } from '../utils/util';
+import { LOGIN_URL } from '../utils/apiUrl';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [data, setData] = useState({
+  const [payload, setPayload] = useState({
     email: '',
     password: '',
   });
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const { dispatch: ctxDispatch } = useContext(AppContext);
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-    setData((prev) => ({
+    setPayload((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const submitHandler = (e) => {
+  const submitHandler = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    try {
+      const { data: userInfo, token } = await postRequest({
+        url: LOGIN_URL,
+        data: payload,
+      });
+      setIsLoading(false);
+      localStorage.setItem('token', token);
+      ctxDispatch({ type: 'USER_SIGNIN', payload: userInfo });
+
+      navigate('/');
+      toast.success('Login successful');
+    } catch (err) {
+      toast.error(getError(err));
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -41,7 +66,8 @@ const Login = () => {
                   name="email"
                   className="w-full outline-none bg-transparent"
                   placeholder="enter email"
-                  onChange={(e) => onChangeHandler(e)}
+                  onChange={onChangeHandler}
+                  required
                 />
               </div>
             </div>
@@ -53,23 +79,16 @@ const Login = () => {
                   name="password"
                   className="w-full outline-none bg-transparent"
                   placeholder="enter password"
-                  onChange={(e) => onChangeHandler(e)}
+                  onChange={onChangeHandler}
+                  required
                 />
                 <div
-                  className=""
+                  className="text-2xl"
                   onClick={() => {
                     setShowPassword(!showPassword);
                   }}
                 >
-                  {showPassword ? (
-                    <span className="text-2xl">
-                      <FaEyeSlash />
-                    </span>
-                  ) : (
-                    <span className="text-2xl">
-                      <FaEye />
-                    </span>
-                  )}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </div>
               </div>
             </div>
@@ -81,9 +100,15 @@ const Login = () => {
             </Link>
             <button
               type="submit"
-              className="bg-red-600 text-white px-6 py-2 w-full max-w-[150px] mx-auto mt-7 rounded-full hover:scale-110 hover:transition-all hover:bg-red-700 block"
+              className="flex justify-center items-center gap-2 bg-red-600 text-white px-6 py-2 w-full max-w-[150px] mx-auto mt-7 rounded-full hover:scale-110 hover:transition-all hover:bg-red-700 disabled:bg-opacity-40"
+              disabled={isLoading}
             >
-              Login
+              {isLoading && (
+                <span className="loading-icon text-red-600">
+                  <AiOutlineLoading />
+                </span>
+              )}
+              <span>Login</span>
             </button>
           </form>
           <p className="py-4">

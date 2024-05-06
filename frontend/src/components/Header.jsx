@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
 import { FaSearch } from 'react-icons/fa';
@@ -6,8 +6,11 @@ import { FaRegUserCircle } from 'react-icons/fa';
 import { FaShoppingCart } from 'react-icons/fa';
 
 import Logo from './Logo';
+import { AppContext } from '../contexts/AppContext';
 
 const Header = () => {
+  const { state } = useContext(AppContext);
+  const { user } = state;
   return (
     <header className="h-16 shadow-md bg-white">
       <div className=" h-full container mx-auto flex items-center px-4 justify-between ">
@@ -26,7 +29,17 @@ const Header = () => {
         </div>
         <div className="flex items-center gap-6">
           <div className="text-3xl">
-            <FaRegUserCircle />
+            {user?.image ? (
+              <div className="w-8 h-8 rounded-full overflow-hidden">
+                <img
+                  className="w-full h-full object-cover"
+                  src={user.image}
+                  alt="user"
+                />
+              </div>
+            ) : (
+              <FaRegUserCircle />
+            )}
           </div>
           <div className="text-2xl relative">
             <span>

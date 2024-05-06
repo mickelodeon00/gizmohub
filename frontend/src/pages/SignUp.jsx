@@ -1,74 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
-import { Link } from 'react-router-dom';
 import { FaEye } from 'react-icons/fa';
 import { FaEyeSlash } from 'react-icons/fa';
+import { AiOutlineLoading } from 'react-icons/ai';
 
+import { AppContext } from '../contexts/AppContext';
 import LoginIcon from '../assets/signin.gif';
+import { postRequest } from '../utils/apiCall';
+import { SIGNUP_URL } from '../utils/apiUrl';
+import { cloudUpload } from '../utils/cloudUpload';
+import { getError } from '../utils/util';
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [file, setFile] = useState('');
-  const [data, setData] = useState({
+  const [previewImage, setPreviewImage] = useState('');
+  const [payload, setPayload] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    photo: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
+  const { dispatch: ctxDispatch } = useContext(AppContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (file) {
-      setData((prev) => ({ ...prev, photo: URL.createObjectURL(file) }));
+      setPreviewImage(URL.createObjectURL(file));
     }
   }, [file]);
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-    setData((prev) => ({
+    setPayload((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const photoChangeHandler = (e) => {
-    e.preventDefault();
-    setFile(e.target.files[0]);
-  };
-
-  const uploadToCloud = async () => {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('folder', 'GIZMOHUB/profile');
-    formData.append('upload_preset', process.env.REACT_APP_UPLOAD_PRESET);
-    const { data: uploadData } = await axios.post(
-      `${process.env.REACT_APP_CLOUDINARY_URL}`,
-      formData
-    );
-    return uploadData?.secure_url;
-    // setData((prev) => ({ ...prev, photo: uploadData?.secure_url }));
-  };
-
   const submitHandler = async (e) => {
     e.preventDefault();
-    let imgUrl = file ? await uploadToCloud() : '';
-    imgUrl = imgUrl ? imgUrl : '';
+    if (payload.confirmPassword !== payload.password) {
+      return toast.error('password do not match');
+    }
 
+    setIsLoading(true);
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACKEND_API_URL}/user/signup`,
-        {
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          image: imgUrl,
-        }
-      );
-      console.log('data', response);
+      let imgUrl;
+      if (file) {
+        imgUrl = await cloudUpload(file, 'profile');
+      }
+      const { data: userInfo, token } = await postRequest({
+        url: SIGNUP_URL,
+        data: {
+          ...payload,
+          image: imgUrl ? imgUrl : '',
+        },
+      });
+      setIsLoading(false);
+      localStorage.setItem('token', token);
+      ctxDispatch({ type: 'USER_SIGNIN', payload: userInfo });
+      navigate('/');
+      toast.success('Login successful');
+
+      console.log('userInfo', userInfo);
     } catch (err) {
-      console.log('error', err);
+      setIsLoading(false);
+      toast.error(getError(err));
     }
   };
 
@@ -80,7 +82,7 @@ const SignUp = () => {
             <div className="">
               <img
                 className="w-full "
-                src={data.photo || LoginIcon}
+                src={previewImage || LoginIcon}
                 alt="Login Icon"
               />
             </div>
@@ -92,7 +94,7 @@ const SignUp = () => {
                 <input
                   type="file"
                   className="hidden"
-                  onChange={photoChangeHandler}
+                  onChange={(e) => setFile(e.target.files[0])}
                 />
               </label>
             </form>
@@ -106,7 +108,7 @@ const SignUp = () => {
                   name="name"
                   className="w-full outline-none bg-transparent"
                   placeholder="enter your name"
-                  onChange={(e) => onChangeHandler(e)}
+                  onChange={onChangeHandler}
                   required
                 />
               </div>
@@ -119,7 +121,7 @@ const SignUp = () => {
                   name="email"
                   className="w-full outline-none bg-transparent"
                   placeholder="enter email"
-                  onChange={(e) => onChangeHandler(e)}
+                  onChange={onChangeHandler}
                   required
                 />
               </div>
@@ -132,24 +134,16 @@ const SignUp = () => {
                   name="password"
                   className="w-full outline-none bg-transparent"
                   placeholder="enter password"
-                  onChange={(e) => onChangeHandler(e)}
+                  onChange={onChangeHandler}
                   required
                 />
                 <div
-                  className=""
+                  className="text-2xl"
                   onClick={() => {
                     setShowPassword(!showPassword);
                   }}
                 >
-                  {showPassword ? (
-                    <span className="text-2xl">
-                      <FaEyeSlash />
-                    </span>
-                  ) : (
-                    <span className="text-2xl">
-                      <FaEye />
-                    </span>
-                  )}
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </div>
               </div>
             </div>
@@ -158,10 +152,10 @@ const SignUp = () => {
               <div className="p-2 bg-slate-100 flex">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
-                  name="confirm-password"
+                  name="confirmPassword"
                   className="w-full outline-none bg-transparent"
                   placeholder="enter password"
-                  onChange={(e) => onChangeHandler(e)}
+                  onChange={onChangeHandler}
                   required
                 />
                 <div
@@ -182,11 +176,18 @@ const SignUp = () => {
                 </div>
               </div>
             </div>
+            <div></div>
             <button
               type="submit"
-              className="bg-red-600 text-white px-6 py-2 w-full max-w-[150px] mx-auto mt-7 rounded-full hover:scale-110 hover:transition-all hover:bg-red-700 block"
+              className="flex justify-center items-center gap-2 bg-red-600 text-white px-6 py-2 w-full max-w-[150px] mx-auto mt-7 rounded-full hover:scale-110 hover:transition-all hover:bg-red-700 disabled:bg-opacity-40"
+              disabled={isLoading}
             >
-              Sign Up
+              {isLoading && (
+                <span className="loading-icon text-red-600">
+                  <AiOutlineLoading />
+                </span>
+              )}
+              <span>Sign Up</span>
             </button>
           </form>
           <p className="py-4">
