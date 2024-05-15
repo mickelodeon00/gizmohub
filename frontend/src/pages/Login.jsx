@@ -43,7 +43,7 @@ const Login = () => {
       ctxDispatch({ type: 'USER_SIGNIN', payload: userInfo });
 
       navigate('/');
-      toast.success('Login successful');
+      toast.success('Login successfully');
     } catch (err) {
       toast.error(getError(err));
       setIsLoading(false);

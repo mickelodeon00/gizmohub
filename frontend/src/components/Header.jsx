@@ -9,8 +9,13 @@ import Logo from './Logo';
 import { AppContext } from '../contexts/AppContext';
 
 const Header = () => {
-  const { state } = useContext(AppContext);
+  const { state, dispatch: ctxDispatch } = useContext(AppContext);
   const { user } = state;
+  const logout = () => {
+    ctxDispatch({ type: 'USER_SIGNOUT' });
+    localStorage.removeItem('token');
+    toast.error('Logged out successfully');
+  };
   return (
     <header className="h-16 shadow-md bg-white">
       <div className=" h-full container mx-auto flex items-center px-4 justify-between ">
@@ -49,12 +54,22 @@ const Header = () => {
               0
             </div>
           </div>
-          <Link
-            className="bg-red-600 hover:bg-red-700 cursor-pointer px-3 py-1 rounded-full text-white"
-            to={'login'}
-          >
-            Login
-          </Link>
+          {user ? (
+            <Link
+              className="bg-red-600 hover:bg-red-700 cursor-pointer px-3 py-1 rounded-full text-white"
+              to="#"
+              onClick={logout}
+            >
+              Logout
+            </Link>
+          ) : (
+            <Link
+              className="bg-red-600 hover:bg-red-700 cursor-pointer px-3 py-1 rounded-full text-white"
+              to="login"
+            >
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </header>
