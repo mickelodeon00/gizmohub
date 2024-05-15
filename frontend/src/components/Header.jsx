@@ -7,6 +7,8 @@ import { FaShoppingCart } from 'react-icons/fa';
 
 import Logo from './Logo';
 import { AppContext } from '../contexts/AppContext';
+import { toast } from 'react-toastify';
+import { Dropdown, DropdownItem } from './Dropdown';
 
 const Header = () => {
   const { state, dispatch: ctxDispatch } = useContext(AppContext);
@@ -33,19 +35,26 @@ const Header = () => {
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <div className="text-3xl">
-            {user?.image ? (
-              <div className="w-8 h-8 rounded-full overflow-hidden">
-                <img
-                  className="w-full h-full object-cover"
-                  src={user.image}
-                  alt="user"
-                />
+          <Dropdown
+            trigger={
+              <div className="text-3xl">
+                {user?.image ? (
+                  <div className="w-8 h-8 rounded-full overflow-hidden">
+                    <img
+                      className="w-full h-full object-cover"
+                      src={user.image}
+                      alt="user"
+                    />
+                  </div>
+                ) : (
+                  <FaRegUserCircle />
+                )}
               </div>
-            ) : (
-              <FaRegUserCircle />
-            )}
-          </div>
+            }
+          >
+            <DropdownItem>Admin panel</DropdownItem>
+          </Dropdown>
+
           <div className="text-2xl relative">
             <span>
               <FaShoppingCart />
