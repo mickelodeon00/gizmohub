@@ -66,6 +66,16 @@ class UserServices {
       handleResponse(res, 404, 'Signing up was not successful');
     }
   }
+
+  static async getAllUsers(req, res) {
+    try {
+      const users = User.find();
+      console.log('users', users);
+      handleResponse(res, 200, 'users found');
+    } catch (err) {
+      handleResponse(res, 401, 'Unable to find users data');
+    }
+  }
 }
 
 export default UserServices;

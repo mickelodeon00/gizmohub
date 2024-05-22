@@ -35,25 +35,29 @@ const Header = () => {
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <Dropdown
-            trigger={
-              <div className="text-3xl">
-                {user?.image ? (
-                  <div className="w-8 h-8 rounded-full overflow-hidden">
-                    <img
-                      className="w-full h-full object-cover"
-                      src={user.image}
-                      alt="user"
-                    />
-                  </div>
-                ) : (
-                  <FaRegUserCircle />
-                )}
-              </div>
-            }
-          >
-            <DropdownItem>Admin panel</DropdownItem>
-          </Dropdown>
+          {user && (
+            <Dropdown
+              trigger={
+                <div className="text-3xl">
+                  {user?.image ? (
+                    <div className="w-8 h-8 rounded-full overflow-hidden">
+                      <img
+                        className="w-full h-full object-cover"
+                        src={user.image}
+                        alt="user"
+                      />
+                    </div>
+                  ) : (
+                    <FaRegUserCircle />
+                  )}
+                </div>
+              }
+            >
+              <DropdownItem>
+                <Link to="/admin/products">Admin panel</Link>
+              </DropdownItem>
+            </Dropdown>
+          )}
 
           <div className="text-2xl relative">
             <span>
@@ -66,7 +70,7 @@ const Header = () => {
           {user ? (
             <Link
               className="bg-red-600 hover:bg-red-700 cursor-pointer px-3 py-1 rounded-full text-white"
-              to="#"
+              to="/"
               onClick={logout}
             >
               Logout

@@ -12,4 +12,6 @@ userRouter.post(
 );
 userRouter.post('/signup', UserServices.createUser);
 
+// userRouter.get('/get-all-users', UserServices.getAllUsers);
+
 export default userRouter;

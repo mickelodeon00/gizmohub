@@ -1,0 +1,20 @@
+.table {
+  @apply w-full;
+}
+
+.table th {
+  @apply items-center font-medium border p-1 bg-black text-white;
+}
+.table td {
+  @apply text-center border p-1 capitalize;
+}
+.table .left-text {
+  @apply text-left;
+}
+.table .no-cap {
+  @apply normal-case;
+}
+
+.transparent-10 {
+  background-color: rgba(0, 0, 0, 0.3);
+}
