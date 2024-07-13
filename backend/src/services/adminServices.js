@@ -1,10 +1,5 @@
-import bcrypt from 'bcryptjs';
 import { User } from '../models/userModel.js';
-import {
-  excludePassword,
-  generateToken,
-  handleResponse,
-} from '../helpers/util.js';
+import { handleResponse } from '../helpers/util.js';
 import { ROLE } from '../constants.js';
 
 // const ONE_HOUR = 1000 * 60 * 60;
@@ -31,14 +26,13 @@ class AdminServices {
       //     handleResponse(res, 401, 'Invalid role selection');
       //   }
       // }
-      console.log('user22', user);
+      // console.log('user22', user);
       const info = {
         name: req.body.name || user.name,
         email: req.body.email || user.email,
         role: req.body.role || user.role,
         isPremiumVendor: req.body.isPremiumVendor || user.isPremiumVendor,
       };
-      console.log('info000', info);
       const update = await User.updateOne({ _id: req.body.id }, { $set: info });
       // console.log('update66666666', update);
       handleResponse(res, 200, 'User Info updated successfully', update);

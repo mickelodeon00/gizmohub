@@ -12,6 +12,20 @@ export const cloudUpload = async (file, folder) => {
     );
     return cloudData?.secure_url;
   } catch (err) {
+    console.error('Error uploading to Cloudinary:', err);
     return null;
+  }
+};
+
+export const uploadMultipleImages = async (files, folder) => {
+  if (files.length === 0) return [];
+  try {
+    const ImgUrl = await Promise.all(
+      files.map((file) => cloudUpload(file, `products/${folder}`))
+    );
+    return ImgUrl.filter((item) => item !== null);
+  } catch (err) {
+    console.error('Error uploading multiple images:', err);
+    return [];
   }
 };

@@ -1,9 +1,8 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Link, Outlet } from 'react-router-dom';
 
 import { FaRegUserCircle } from 'react-icons/fa';
 import { AppContext } from '../contexts/AppContext';
-import { getRequest } from '../utils/apiCall';
 
 const AdminPanel = () => {
   const { state } = useContext(AppContext);

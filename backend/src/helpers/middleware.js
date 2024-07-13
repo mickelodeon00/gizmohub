@@ -21,6 +21,23 @@ class AuthCheck {
     }
     next();
   }
+
+  static async authorizeRole(req, res, next, ...acceptedRoles) {
+    if (!acceptedRoles.includes(req.user?.role)) {
+      return handleResponse(
+        res,
+        403,
+        'Unauthorized Action, please signup as a vendor'
+      );
+    }
+    next();
+  }
+
+  static authorize(...roles) {
+    return (req, res, next) => {
+      AuthCheck.authorizeRole(req, res, next, ...roles);
+    };
+  }
 }
 
 export default AuthCheck;

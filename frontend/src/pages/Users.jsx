@@ -19,8 +19,8 @@ const Users = () => {
       console.log('users', data);
       setUsers(data);
     } catch (err) {
-      console.log('ERROR', err);
-      // toast.error(getError(err));
+      // console.log('ERROR', err);
+      toast.error(getError(err));
     }
   };
 
